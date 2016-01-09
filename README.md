@@ -17,5 +17,5 @@ liczby) ćwiczeń w tym repozytorium, wyślij mi pull request (https://help.gith
 Wszystkie publikowane rozwiązania powinny być na licencji MIT, BSD lub (w przypadku tekstu) CC-BY 4.0 - w związku z tym prosiłbym o dodanie odpowiedniej adnotacji na temat licencji w kodzie lub tekście.
 
 ## Podziękowania
-(W tym miejscu będę publikował podziękowania dla wszystkich osób, które wpłyną na rozwój tego repozytorium)
+ + **Adam Bac (abac00s)**: VM-bf-inception, VM-not-so-simple-calc
 
