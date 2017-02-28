@@ -34,11 +34,11 @@ public class BigNum {
 
 
     public BigNum multiply(BigNum numberToMultiply) {
-        List<List<Integer>> ml = Multiplication.multiply(numberAsList, numberToMultiply.getNumberAsList());
+        List<List<Integer>> partialResults = Multiplication.multiply(numberAsList, numberToMultiply.getNumberAsList());
 
         List<Integer> result = new ArrayList<>();
-        for (List<Integer> integers : ml) {
-            result = Addition.add(result, integers);
+        for (List<Integer> partialResult : partialResults) {
+            result = Addition.add(result, partialResult);
         }
 
         numberAsList = result;
