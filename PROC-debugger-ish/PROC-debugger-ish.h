@@ -169,7 +169,7 @@ DWORD Debug::OnCreateThread(HANDLE hThread = INVALID_HANDLE_VALUE)
 	{
 		char szError[] = "[ERR] Failed to resume thread!\n[Q] Kill it or try again? y/n";
 		puts(szError);
-		char szForm[] = "%c";
+		char szForm[] = " %c"; // Foralost 24.09.2017 pomijanie białych znaków 
 		char cDec;
 		scanf_s(szForm, &cDec);
 
@@ -177,17 +177,29 @@ DWORD Debug::OnCreateThread(HANDLE hThread = INVALID_HANDLE_VALUE)
 		{
 			size_t count = 0;
 			char szErrorTHR[] = "[ERR] Failed to kill the thread! Tryin again...";
+			char szErrorSUCC[] = "[ERR] Succeed in killing the thread!";
 			while (!TerminateThread(DbgThread, ERROR_DBG_TERMINATE_THREAD)) {
 				puts(szErrorTHR);
 				++count;
-				if (count == 20)
+				if (count >= 20) 
 				{
-					char szError10[] = "[ERR] Failed to kill thread after 20 tries! Returning fatal error!";
+					char szError20[] = "[ERR] Failed to kill thread after at least 20 tries! Returning fatal error!";
+					puts(szError20);
 					return ERROR_DBG_EXCEPTION_NOT_HANDLED;
-				}
-				else
-					return ERROR_DBG_TERMINATE_THREAD;
+				} 
+				// ------------------ NOTKA --------------------------
+				// Poprawa: z rozpędu źle pokierowałem algorytm oraz zapomniałem wyświetlić błąd
+				// program miał dopiero po 20. razie zwrócić ERROR_DBG_EXCEPTION_NOT_HANDLED
+				// a zwracał po pierwszej inkrementacji zmiennej "count" ERROR_DBG_TERMINATE_THREAD 
+				// (błędny blok else do tego ifa wyżej), teraz powinno działać ;)
+				//
+				// Dodałem też komunikat o poprawnym zabiciu wątku przez debugger
+				// oraz >= jakby miał magicznie "przeskoczyć" 20.
+				//
+				// Foralost 24.09.2017
 			}
+			puts(szErrorSUCC);
+			return ERROR_DBG_TERMINATE_THREAD;
 		}
 	}
 
