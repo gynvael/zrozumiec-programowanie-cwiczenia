@@ -76,3 +76,24 @@ $ python ./vm.py ./2_stack_pivotish
 000e: VSET      0ffc030100
 103fc: VOFF                 
 ```
+
+```bash
+$ nasm 3_stack_pivotish.asm 
+$ hexdump -C 3_stack_pivotish
+00000000  31 00 31 00 31 00 31 00  31 00 31 00 01 00 ff 00  |1.1.1.1.1.1.....|
+00000010  00 00 30 00 01 01 14 00  01 00 30 01 44           |..0.......0.D|
+0000001d
+$ python ./vm.py ./3_stack_pivotish                                                                                                                                                                                   
+0000: VPOP      00
+0002: VPOP      00
+0004: VPOP      00
+0006: VPOP      00
+0008: VPOP      00
+000a: VPOP      00
+000c: VSET      00ff000000
+0012: VPUSH     00
+0014: VSET      0114000100
+001a: VPUSH     01
+001c: VRET
+10014: VOFF      
+```
