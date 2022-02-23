@@ -10,12 +10,16 @@
 int main(int argc, char** argv){
 
 	size_t length;
-	char16_t* utf = conv_utf8_utf16(u8"ąśćź", 4, &length);
 
-	char32_t* utf32 = conv_utf8_utf32(u8"ąśćź", 4, &length);
+	char16_t* utf_16 = conv_utf8_utf16(u8"🤣🤣🤣", 3, &length);
 
-	utf = conv_utf32_utf16(utf32, 4, &length);
+	char32_t* utf_32 = conv_utf16_utf32(utf_16, length, &length);
 
-	char16_t* utf_2 = conv_utf32_utf16(utf32, 4, &length);
+	char16_t* utf_32_16 = conv_utf32_utf16(utf_32, length, &length);
+
+	char* utf_8 = conv_utf16_utf8(utf_32_16, length, &length);
+
+	utf_8 = conv_utf32_utf8(utf_32, length, &length);
+	printf("%s", utf_8);
 	return 0;
 }
