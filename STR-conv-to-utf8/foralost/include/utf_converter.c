@@ -83,13 +83,13 @@ void __parse_utf32_utf8(const char32_t src, char *dest, uint8_t *step) {
 		// Dla kolejnych bajtów UTF8, wystarczy dla tego przypadku zastosować przesunięcie arytmetyczne w prawo
 	}
 	uint8_t free_bits = 8 - (byte_count + 1);
-	// byte_count - liczba jedynek, +1 - bo mamy jeszcze 0 do uwzg.
+	// byte_count - liczba jedynek + 1 - bo mamy jeszcze 0 do uwzg.
 
 	uint8_t offset = bit_mark - free_bits;
 
 	first_byte |= (src >> offset);
 
-	// W zależności od liczby jedynek, 'doklejamy' offset górnych bitów znaku UTF32
+	// W zależności od liczby jedynek, 'doklejamy' free_bits górnych bitów znaku UTF32
 	// do pierwszego bajtu.
 	// np.
 	// 	first_byte = 1100 0000 (UTF8 - dwa bajty -> 5 wolnych dolnych bitów)
@@ -113,11 +113,15 @@ void __parse_utf32_utf8(const char32_t src, char *dest, uint8_t *step) {
 	*step = byte_count;
 }
 
-void __parse_utf32_utf16(const uint32_t src, uint16_t *dest, uint8_t *step) {
+void __parse_utf32_utf16(const char32_t src, char16_t *dest, uint8_t *step) {
 
 	if (src <= 0xD7FF || (src >= 0xE000 && src <= 0xFFFF)) {
 		*dest = (uint16_t) (src & 0xFFFF);
 		*step = 2;
+		return;
+	} else if( src > 0xD7FF && src < 0xE000 ){
+		*step = 2;
+		*dest = -1;
 		return;
 	}
 
@@ -128,8 +132,8 @@ void __parse_utf32_utf16(const uint32_t src, uint16_t *dest, uint8_t *step) {
 	return;
 }
 
-uint32_t __decompose_utf8_utf32(const char *source, uint8_t *offset) {
-	uint32_t to_ret = 0;
+char32_t __decompose_utf8_utf32(const char *source, uint8_t *offset) {
+	char32_t to_ret = 0;
 
 	uint8_t count_bytes = 0;
 
@@ -157,10 +161,9 @@ uint32_t __decompose_utf8_utf32(const char *source, uint8_t *offset) {
 	to_ret = source[0] & mask;
 
 	// Odczytanie kolejnych bajtów, jako: 10XX XXXX
-	count_bytes--;
 	*offset = 1;
-	for (uint8_t i = 0; i < count_bytes; i++) {
-		if ((source[i + 1] & 0xC0) != 0x80) {
+	for (uint8_t i = 1; i < count_bytes; i++) {
+		if ((source[i] & 0xC0) != 0x80) {
 			fprintf(stderr, "ERROR: Invalid UTF-8 marker found. Aborting.\n");
 			return -1;
 		} else {
@@ -168,12 +171,12 @@ uint32_t __decompose_utf8_utf32(const char *source, uint8_t *offset) {
 			*offset += 1;
 		}
 
-		to_ret |= source[i + 1] & (uint8_t) (0x3F);
+		to_ret |= source[i] & (uint8_t) (0x3F);
 	}
 	return to_ret;
 }
 
-uint32_t __decompose_utf16_utf32(uint16_t *src, uint8_t *offset) {
+char32_t __decompose_utf16_utf32(const char16_t *src, uint8_t *offset) {
 
 	if (src[0] <= 0xD7FF || src[0] >= 0xE000) {
 		*offset = 2;
@@ -192,13 +195,13 @@ uint32_t __decompose_utf16_utf32(uint16_t *src, uint8_t *offset) {
 	return  ( ( decoded_one << 10 ) | decoded_two ) + 0x10000 ;
 }
 
-uint32_t __decompose_utf32(uint32_t *src, uint8_t *offset) {
+char32_t __decompose_utf32(const char32_t *src, uint8_t *offset) {
 	*offset = 4;
 	return *src;
 }
 
 struct unicode_char* __decompose_to_utf32(const char *source,
-		const size_t length, uint32_t __utf32_decomposer(const char*, uint8_t*)) {
+		const size_t length, char32_t __utf32_decomposer(const char*, uint8_t*)) {
 
 	size_t offset = 0;
 	uint8_t step_offset = 0;
@@ -234,7 +237,7 @@ struct unicode_char* __decompose_to_utf32(const char *source,
 }
 
 void* __conv_utfx_utfy(const char *source, size_t length, size_t *dest_length,
-		uint32_t __utf32_decomposer(const char*, uint8_t*),
+		char32_t __utf32_decomposer(const char*, uint8_t*),
 		size_t __length_parser(const uint32_t),
 		void __utf_parser(const uint32_t, void*, void*)) {
 
@@ -272,6 +275,11 @@ void* __conv_utfx_utfy(const char *source, size_t length, size_t *dest_length,
 		__utf_parser(curr_char->unicode, utf_chars + offset, &step);
 		// Przekonwertuj dany znak UTF32 na zadane kodowanie UTF
 		// __utf_parser wskazuje na funkcję konwertującą
+		if( utf_chars[offset] == -1 ){
+			free(prev_char);
+			break;
+		}
+
 
 		offset += step;
 
@@ -286,7 +294,7 @@ void* __conv_utfx_utfy(const char *source, size_t length, size_t *dest_length,
 	return utf_chars;
 }
 
-uint16_t* conv_utf8_utf16(const char *source, size_t length,
+char16_t* conv_utf8_utf16(const char *source, size_t length,
 		size_t *dest_length) {
 
 	/* Użycie danych funkcji do zbudowania kodera/dekodera UTF
