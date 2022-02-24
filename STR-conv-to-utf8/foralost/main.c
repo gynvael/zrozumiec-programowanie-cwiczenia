@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
 		utf_16 = conv_utf8_utf16(utf_8, 1, &length);
 
-		if ((char16_t) (*utf_32) != utf_16_char) {
+		if ((char16_t) (*utf_16) != utf_16_char) {
 			printf("ERROR %x\n ", utf_16_char);
 		}
 		free(utf_8);
