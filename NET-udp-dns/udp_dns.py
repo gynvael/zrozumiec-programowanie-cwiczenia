@@ -203,7 +203,8 @@ def dns_decode_domain(p, idx):
     return ".".join(domain), idx
 
 
-# DNS wymaga by każdy pakiet był poprzedzony 2-bajtowym polem określającym jego długość.
+# DNS wymaga by każdy pakiet był poprzedzony 2-bajtowym polem określającym jego
+# długość.
 def dns_udp_send_packet(s, packet, dns_socket):
     packet_len = pack(">H", len(packet))
     s.sendto(packet_len, dns_socket)
@@ -211,7 +212,8 @@ def dns_udp_send_packet(s, packet, dns_socket):
 
 
 def dns_udp_recv_packet(s):
-    data, addr = s.recvfrom(512)  # Limit bajtów (RFC 1035 - maksymalna wielkość wiadomości DNS wysyłanej przez UDP)
+    data, addr = s.recvfrom(512)  # Limit bajtów
+    # (RFC 1035 - maksymalna wielkość wiadomości DNS wysyłanej przez UDP)
     return data
 
 
@@ -222,7 +224,8 @@ def recv_all(s, n):
     while d_len != n:
         d_latest = s.recv(n - d_len)
         if len(d_latest) == 0:
-            # Druga strona rozłączyła się przed przesłaniem wszystkich wymaganych danych.
+            # Druga strona rozłączyła się przed przesłaniem wszystkich
+            # wymaganych danych.
             return None
         d.append(d_latest)
         d_len += len(d_latest)
