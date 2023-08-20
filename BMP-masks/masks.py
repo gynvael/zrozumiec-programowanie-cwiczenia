@@ -35,7 +35,10 @@ def get_bits(bit_mask: int, max_bits: int = 32) -> tuple[int, int]:
         TypeError: if bit_mask or max_bits are not a number.
         ValueError: if bit_mask or max_bits are negative.
     """
-
+    if not (isinstance(bit_mask, int) and isinstance(max_bits, int)):
+        raise TypeError
+    if bit_mask < 0 or max_bits <= 0:
+        raise ValueError
     bit_offset, nibbles = 0, 0
     for n in range(0, max_bits, 4):
         temp = (bit_mask >> n) & 0xF
