@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-"""This module provides two functions either to create mask based on provided bit offset and bits per color number or
+"""This module provides two functions, either to create mask based on provided bit offset and bits per color number or
 extract these values from provided mask.
 """
 
@@ -12,8 +12,8 @@ def get_mask(bit_offset: int, bits_per_color: int = 8) -> int:
     Returns:
         The string which represents bit mask for specific color.
     Raises:
-        TypeError: if n is not a number.
-        ValueError: if n is negative.
+        TypeError: if bit_offset or bits_per_color are not a number.
+        ValueError: if bit_offset or bits_per_color are negative.
     """
     if not (isinstance(bit_offset, int) and isinstance(bits_per_color, int)):
         raise TypeError
@@ -31,6 +31,9 @@ def get_bits(bit_mask: int, max_bits: int = 32) -> tuple[int, int]:
     Returns:
         bit_offset: the number of bit offset for specific color value.
         bits_per_color: the number of bits to encode color value.
+    Raises:
+        TypeError: if bit_mask or max_bits are not a number.
+        ValueError: if bit_mask or max_bits are negative.
     """
 
     bit_offset, nibbles = 0, 0
@@ -41,7 +44,7 @@ def get_bits(bit_mask: int, max_bits: int = 32) -> tuple[int, int]:
         if temp == 0 and not nibbles:
             bit_offset += 1
 
-    bits_per_color = 4 * nibbles  # Translate hex nibbles to bits amount
+    bits_per_color = 4 * nibbles  #  Translate hex nibbles to bits amount
     return bit_offset, bits_per_color
 
 
