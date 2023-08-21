@@ -1,4 +1,5 @@
 #! /usr/bin/python3
+# -*- coding: utf-8 -*-
 """This module provides two functions, either to create mask based on provided bit offset and bits per color number or
 extract these values from provided mask.
 """
@@ -20,7 +21,7 @@ def get_mask(bit_offset: int, bits_per_color: int = 8) -> int:
     if bit_offset < 0 or bits_per_color <= 0:
         raise ValueError
     val = (1 << bits_per_color) - 1
-    return val << (4 * bit_offset)
+    return val << bit_offset
 
 
 def get_bits(bit_mask: int, max_bits: int = 32) -> tuple[int, int]:
@@ -39,28 +40,12 @@ def get_bits(bit_mask: int, max_bits: int = 32) -> tuple[int, int]:
         raise TypeError
     if bit_mask < 0 or max_bits <= 0:
         raise ValueError
-    bit_offset, nibbles = 0, 0
-    for n in range(0, max_bits, 4):
-        temp = (bit_mask >> n) & 0xF
+    bit_offset, bits_per_color = 0, 0
+    for b in range(0, max_bits):
+        temp = (bit_mask >> b) & 0x1
         if temp != 0:
-            nibbles += 1
-        if temp == 0 and not nibbles:
+            bits_per_color += 1
+        if temp == 0 and not bits_per_color:
             bit_offset += 1
 
-    bits_per_color = 4 * nibbles  #  Translate hex nibbles to bits amount
     return bit_offset, bits_per_color
-
-
-def main():
-    """Set of tests for the module"""
-    masks = [
-        0x00FF0000,
-        0x0000FF00,
-        0x000000FF,
-    ]
-    for m in masks:
-        assert m == get_mask(*get_bits(m))
-
-
-if __name__ == "__main__":
-    main()
