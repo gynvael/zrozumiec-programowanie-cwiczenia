@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
+
 """This is simple BMP graphical viewer"""
 
 import argparse
@@ -32,7 +33,9 @@ def display(width: int, height: int, parser: BMPParser):
         height: the height of the display window.
         parser: parser object that keeps the pixel data.
     """
-    window = pygame.display.set_mode([width, height], 0, 32)
+    window = pygame.display.set_mode(
+        [width, height], 0, parser.dib_header.bits_per_pixel
+    )
     pixels = pygame.PixelArray(window)
     for y in range(height):
         for x in range(width):
@@ -47,10 +50,12 @@ def display(width: int, height: int, parser: BMPParser):
 
 def main():
     """Read and display provided bitmap file. Wait for a key press or window close, then end the program."""
-    parser = BMPParser(read_cli())
+    file = read_cli()
+    parser = BMPParser(file)
     parser.parse()
     parser.display_info()
     w, h = parser.dib_header.width, parser.dib_header.height
+
     pygame.display.init()
     display(w, h, parser)
     pygame.display.flip()
